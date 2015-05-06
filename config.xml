@@ -16,5 +16,7 @@
     <author href="https://build.phonegap.com" email="support@phonegap.com">
         Daniel Mork 
     </author>
+<preference name="phonegap-version" value="3.7.0" /> 
+<gap:platform name="android" />
 <icon src="icon.png" />
 </widget>
