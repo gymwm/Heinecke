@@ -1,157 +1,18 @@
-﻿<!doctype html>
-<html lang="en">
+<!DOCTYPE HTML> 
+<html>
    <head>
       <meta charset="utf-8" />
-	  <meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=2.0, user-scalable=1">
-      <script src="ol.js" type="text/javascript"></script>
-      <title>Geolocation mit OpenLayers</title>
+      <title>App Nr. 1</title>
+      <!-- Es folgen die zusätzlichen Styleangaben für das Dokument -->
+      <style>
+         h1{font-size:21pt; font-family: serif}
+         .artikel{font-size:13pt;}
+         #eins{width:120px;}
+      </style>
    </head>
    <body>
-      <h1>Wo geht's hier raus? Ver. 0.2</h1>
-
-<script type="text/javascript"> document.writeln('<table border="1">'); document.writeln("<tr>"); document.writeln("<td>" + navigator.platform + "<\/td>"); document.writeln("<\/tr>");document.writeln("<\/table>"); </script>
-
-
-      <p class="artikel" id="ausgabe">Das fragte sich mancher am letzten Marktsonntag in Niebelding. ...</p>
-      <!-- eingefügte Buttons für spätere Aktionen -->
-      <button id="eins" onClick="position_ausgeben()">Position ausgeben</button>
-      <button id="zwei" onClick="karte_anzeigen()">Karte anzeigen</button>
-      <button id="drei" onClick="karte_auf_position_zentrieren()">Karte auf Position zentrieren</button>
-      <button id="vier" onClick="position_auf_karte_anzeigen()">Position auf der Karte anzeigen</button>
-      <button id="fuenf" onClick="alles()">Alles auf einmal!</button>
-      <button id="sechs" onClick="resetMap()">Nochmals von vorne.</button>
-      <!-- der Platzhalter für die Karte -->
-      <div id="map" style="height: 500px; width: 1200px;border:1px solid #aaa;margin-top:11px;"></div>
-      <!-- ein Bild zum Anzeigen der Position -->
-      <img id="geolocation_marker" src="point.png" />
-      <script type="text/javascript">
-		function ausgabe( strAusgabe ){
-		   if(!strAusgabe){ strAusgabe = "!";} // Die Funktion ausgabe( strAusgabe) kann man auch mit einem Parameter aufrufen. Wird kein aktueller Wert für den Parameter übergeben, ersetzt die Funktion in dieser Zeile als Wert ein einzelnes Ausrufezeichen "!". 
-		   // alert( strAusgabe );
-		   // console.log( strAusgabe );
-		   document.getElementById('ausgabe').innerHTML = strAusgabe; // In dieser Zeile wird die Zeichenkette strAusgabe dem Inhalt des HTML-Elements mit der ID 'ausgabe' zugewiesen und das ist hier der eine Absatz, der beim Laden der Seite den Text "Das fragte sich ... " enthält. 
-		   }
-		   
-		function position_ausgeben(){
-			// HTML5-Fähigkeit des Browsers abrufen
-			// Sie enthält den Aufruf der neuen, im Browser implementierten Methode navigator.geolocation.getCurrentPosition( ... ). Diese Methode ermöglicht es, die Geoposition des Geräts auszulesen, auf dem der Browser geöffnet wird. Falls Sie sich wundern, wie das auf einem PC gehen soll, da der doch gar kein GPS empfangen kann: In diesem Fall verwendet der Browser den Standort des Einwahlknotens. Der Methode getCurrentPosition wird als Parameter eine abstrakte Funktion übergeben, die zur Laufzeit ausgeführt werden soll, wobei diese Funktion bei der Ausführung zusätzlich als Parameter ein Objekt bekommt. Mit diesem Objekt - hier "position" benannt - kann man dann arbeiten, denn es enthält die gewünschten Daten als Teil eines untergeordneten Objektes coords. Der gesamte Ablauf ist typisch für den Einfluss der funktionalen Programmierung in JavaScript.
-		   navigator.geolocation.getCurrentPosition( function (position){                
-			  // position ist ein Objekt, mit dem untergeordneten Objekt coords.
-			  // coords enthält als Attribute Longitude und Latitude.
-			  var posAusgabe = "Sie sind hier: ( Long "
-								+ position.coords.longitude 
-								+" | Lat "
-								+ position.coords.latitude + " )";
-			  ausgabe(posAusgabe);
-			  });                                                                         // Am Ende hat die Funktion position_ausgeben() den Inhalt des Absatzes durch die Werte der Longitude und der Latitude ersetzt.
-		   }
-		   
-		function karte_anzeigen(){
-		   // Instanzierung eines neuen Map-Objekts aus dem Framework OpenLayer3
-		   map = new ol.Map({                // Parameter: Objekt mit Optionen (*)
-											 // Option 1: Layers (Schichten)
-			  layers: [new ol.layer.Tile({   // Einbinden einer OSM-Karte
-									   source: new ol.source.MapQuest({layer: 'osm'})
-										})],
-											 // Option 2: View (Ansicht)
-			  view: new ol.View({            // Definition einer Ansicht der Karte
-							   center: [0,0], // Positionsangabe für die Mitte
-							   zoom: 2       // Zoomstufe, 0 - 28 
-							   }), 
-			  target: 'map'                  // Option 3: Zielelement
-											 // ID des HTML-Elements, 
-											 //   in dem die Karte gezeigt werden soll
-			  });
-		   } 
-		   //Bei der Instanzierung des Map-Objekts wird ein "Literal" { ... } übergeben, das alle nötigen Parameter enthält. Die unterstrichenen Namen für die Schlüssel des Literals sind nicht beliebig und müssen genau so übernommen werden. Die Werte auf der rechten Seite des Doppelpunktes können dagegen variieren. Diese Notation finden Sie auch bei der Instanzierung des Objekts ol.layer.Tile und ol.View.
-		   
-		function karte_auf_position_zentrieren(){ 
-
-		   navigator.geolocation.getCurrentPosition( function (position){
-						
-		   // Daten der Geoposition
-		   geoPosition = [position.coords.longitude, position.coords.latitude];
-						
-		   // Projektion der Geoposition auf die Karte
-		   positionAufKarte = ol.proj.transform(
-												geoPosition, 
-												'EPSG:4326', 
-												'EPSG:3857'
-												);
-										
-		   // Definition einer Kartenansicht
-		   var view = 	new ol.View({
-									center: positionAufKarte, // aktuelle Position
-									zoom: 12                  // geeigneter Zoom
-						});
-										
-		   // Aktualisierung der Kartenansicht
-		   map.setView( view ); 
-		   }); 
-		}
-		
-		function position_auf_karte_anzeigen(){
-
-		   var markerEl = document.getElementById('geolocation_marker');
-		   map.addOverlay(
-			  new ol.Overlay({
-							  position: positionAufKarte, // vgl. oben 5.
-							  element: markerEl,
-							  stopEvent: false
-							})
-						 );
-		   }
-		   
-		function alles_alt() {
-			var markerEl = document.getElementById('geolocation_marker');
-			navigator.geolocation.getCurrentPosition( function (position){                
-			  // position ist ein Objekt, mit dem untergeordneten Objekt coords.
-			  // coords enthält als Attribute Longitude und Latitude.
-			  var posAusgabe = "Sie sind hier: ( Long "
-								+ position.coords.longitude 
-								+" | Lat "
-								+ position.coords.latitude + " )";
-			  });          
-			karte_anzeigen();
-			karte_auf_position_zentrieren();
-			position_auf_karte_anzeigen();
-		}
-		
-		function alles(){
-		   var markerEl = document.getElementById('geolocation_marker');
-		   navigator.geolocation.getCurrentPosition( function (position){
-			  ausgabe("Sie sind jedenfalls hier: ( Long "
-					   + position.coords.longitude 
-					   + " | Lat "
-					   + position.coords.latitude + " )");
-			  geoPosition = [position.coords.longitude, position.coords.latitude];
-			  positionAufKarte = ol.proj.transform(geoPosition, 'EPSG:4326', 'EPSG:3857');
-			  map = new ol.Map({
-				 layers: [new ol.layer.Tile({source: new ol.source.MapQuest({layer: 'osm'}) }) ],
-				 view: new ol.View({ center: positionAufKarte, zoom: 12 }), 
-				 target: 'map' });
-			  map.addOverlay( 
-				 new ol.Overlay({
-					position: positionAufKarte,
-					element: markerEl,
-					stopEvent: false 
-					}) 
-				 ); 
-			  });
-		   }
-		   
-		function resetMap(){ 
-		   if (map){                                  // vorausgesetzt: ol.Map map;
-			  map = null; //map wird geleert
-			  document.getElementById('map').innerHTML = "";
-			  }
-		   if (!document.getElementById('geolocation_marker')){		//
-			  var  _h = document.createElement('img'); 
-			  _h.setAttribute('src','point.png');    // vorausgesetzt: Es existiert ein Datei point.png. 
-			  _h.setAttribute('id','geolocation_marker');
-			  document.body.appendChild(_h);
-			  }
-		   }
-	  </script>
+      <h1>Zeig mir, wo ich bin!</h1>
+      <p class="artikel">html5 rocks</p>
+      <button class="artikel" id="eins">Drück mich.</button> 
    </body>
 </html>
